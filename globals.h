@@ -112,28 +112,6 @@ inline const float ENEMY_MOVEMENT_SPEED  = 0.07f;
 inline const float BOUNCE_OFF_ENEMY      = 0.1f;
 inline const float GRAVITY_FORCE         = 0.01f;
 
-/* Player data */
-
-inline float player_y_velocity = 0;
-inline Vector2 player_pos;
-
-inline bool is_player_on_ground;
-inline bool is_looking_forward;
-inline bool is_moving;
-
-inline int player_level_scores[LEVEL_COUNT];
-
-inline const int MAX_PLAYER_LIVES = 3;
-inline int player_lives = MAX_PLAYER_LIVES;
-
-/* Enemy data */
-
-struct Enemy {
-    Vector2 pos;
-    bool is_looking_right;
-};
-
-inline std::vector<Enemy> enemies;
 
 /* Graphic Metrics */
 
@@ -308,7 +286,6 @@ void derive_graphics_metrics_from_loaded_level();
 void draw_game_overlay();
 void draw_level();
 void draw_player();
-void draw_enemies();
 void draw_menu();
 
 void draw_pause_menu();
@@ -333,27 +310,7 @@ void unload_level();
 char& get_level_cell(size_t row, size_t column);
 void set_level_cell(size_t row, size_t column, char chr);
 
-// PLAYER_H
 
-void reset_player_stats();
-void increment_player_score();
-int get_total_player_score();
-
-void spawn_player();
-void kill_player();
-
-void move_player_horizontally(float delta);
-void update_player();
-void update_player_gravity();
-
-// ENEMY_H
-
-void spawn_enemies();
-
-void update_enemies();
-
-bool is_colliding_with_enemies(Vector2 pos);
-void remove_colliding_enemy(Vector2 pos);
 
 // ASSETS_H
 
