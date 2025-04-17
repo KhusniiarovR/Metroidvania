@@ -7,9 +7,10 @@
 #include "assets.h"
 #include "utilities.h"
 
+Level level;
 Player player;
 Enemy enemy;
-Level level;
+
 
 void update_game() {
     game_frame++;
@@ -19,7 +20,7 @@ void update_game() {
             if (IsKeyPressed(KEY_ENTER)) {
                 SetExitKey(0);
                 game_state = GAME_STATE;
-                level.load(0);
+                level.load_level(0);
             }
             break;
 
@@ -57,7 +58,7 @@ void update_game() {
 
             if (IsKeyPressed(KEY_ENTER)) {
                 if (player.get_lives() > 0) {
-                    level.load(0);
+                    level.load_level(0);
                     game_state = GAME_STATE;
                 }
                 else {
@@ -72,7 +73,7 @@ void update_game() {
                 level.reset_index();
                 player.reset_stats();
                 game_state = GAME_STATE;
-                level.load(0);
+                level.load_level(0);
             }
             break;
 
@@ -126,13 +127,13 @@ int main() {
     SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(GetScreenWidth(), GetScreenHeight(), "Platformer");
     SetTargetFPS(60);
-    ToggleFullscreen();
+    // ToggleFullscreen();
     HideCursor();
 
     load_fonts();
     load_images();
     load_sounds();
-    level.load();
+    level.load_level(0);
 
     while (!WindowShouldClose()) {
         BeginDrawing();

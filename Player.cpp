@@ -3,7 +3,7 @@
 #include "globals.h"
 #include "level.h"
 
-
+extern Player player;
 extern Enemy enemy;
 extern Level level;
 
@@ -118,7 +118,7 @@ void Player::update() {
         }
         else {
             // Allow the player to exit after the level timer goes to zero
-            level.load(1);
+            level.load_level(1);
             PlaySound(exit_sound);
         }
     }

@@ -4,7 +4,6 @@
 #include "globals.h"
 #include "player.h"
 
-extern Player player;
 
 class Enemy
 {

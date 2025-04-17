@@ -1,4 +1,8 @@
 #include "level.h"
+#include <fstream>
+#include <iostream>
+
+extern Player player;
 
 Level::Level() : rows(0), columns(0) {}
 
@@ -52,7 +56,7 @@ void Level::reset_index() {
     level_index = 0;
 }
 
-void Level::load(int offset) {
+void Level::load_level(int offset) {
     level_index += offset;
 
     // Win logic
@@ -63,10 +67,7 @@ void Level::load(int offset) {
         return;
     }
 
-    data = LEVEL_1_DATA;
-    rows = 12;
-    columns = 72;
-
+    decode_file();
 
     // Instantiate entities
     player.spawn();
@@ -77,6 +78,70 @@ void Level::load(int offset) {
 
     // Reset the timer
     timer = MAX_LEVEL_TIME;
+}
+
+void Level::decode_file() {
+    data = nullptr;
+    rows = 1;
+    columns = 0;
+
+    std::ifstream level_file("data/levels.rll");
+
+    if (!level_file) {
+        std::cerr << "can't open levels.rll!" << std::endl;
+    }
+
+    std::string line;
+    std::string target_level = "; Level " + std::to_string(level_index + 1);
+    while (std::getline(level_file, line)) {
+        if (line == target_level) {
+            break;
+        }
+    }
+
+    std::string nextLine;
+    std::getline(level_file, nextLine);
+
+    std::string decoded;
+    size_t i = -1;
+    int columns_number = 0;
+
+    while (i < nextLine.length()) {
+        ++i;
+        if (isdigit(nextLine[i])) {
+            int num = 0;
+            while (i < nextLine.length() && isdigit(nextLine[i])) {
+                num = num * 10 + (nextLine[i] - '0');
+                ++i;
+            }
+            if (i < nextLine.length()) {
+                char symbol = nextLine[i++];
+                decoded.append(num, symbol);
+                columns_number += num;
+                ++i;
+                continue;
+            }
+        }
+
+        else if (nextLine[i] == '|') {
+            columns_number = 0;
+            rows++;
+            ++i;
+            continue;
+        }
+
+        decoded.push_back(nextLine[i]);
+        columns_number++;
+
+        columns = columns_number;
+    }
+    // todo исправь декодинг весь
+    std::cerr << decoded;
+
+    std::cout << "\n" << rows << "\n" << columns << "\n";
+    strcpy(data, decoded.c_str());
+
+    level_file.close();
 }
 
 char& Level::get_cell(size_t row, size_t column) {

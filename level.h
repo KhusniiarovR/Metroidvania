@@ -16,7 +16,7 @@ public:
     char& get_collider(Vector2 pos, char look_for);
 
     void reset_index();
-    void load(int offset = 0);
+    void load_level(int offset = 0);
 
     char& get_cell(size_t row, size_t column);
     void set_cell(size_t row, size_t column, char chr);
@@ -26,10 +26,12 @@ public:
     [[nodiscard]] int get_index() const;
     [[nodiscard]] int get_count() const;
 private:
+
     int rows, columns;
     char *data = nullptr;
     int level_index = 0;
     int LEVEL_COUNT = 3;
+    void decode_file();
 };
 
 #endif //LEVEL_H
