@@ -9,7 +9,7 @@ class Player
 public:
     Player();
     void reset_stats();
-    int get_total_score();
+    int get_total_score() const;
     void spawn();
     void kill();
     void move_horizontally(float delta);
@@ -35,7 +35,7 @@ private:
     bool is_looking_forward;
     bool is_moving;
 
-    int level_scores[LEVEL_COUNT];
+    int level_scores[3];
 
     const int MAX_LIVES = 3;
     int lives = MAX_LIVES;

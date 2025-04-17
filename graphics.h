@@ -7,6 +7,7 @@
 
 extern Player player;
 extern Enemy enemy;
+extern Level level;
 
 void draw_text(Text &text) {
     // Measure the text, center it to the required position, and draw it
@@ -25,7 +26,7 @@ void derive_graphics_metrics_from_loaded_level() {
     screen_size.x  = static_cast<float>(GetRenderWidth());
     screen_size.y = static_cast<float>(GetRenderHeight());
 
-    cell_size = screen_size.y / static_cast<float>(LEVELS[level_index].rows);
+    cell_size = screen_size.y / static_cast<float>(level.get_rows());
     screen_scale = std::min(screen_size.x, screen_size.y) / SCREEN_SCALE_DIVISOR;
 
     // Parallax background setup
@@ -100,8 +101,8 @@ void draw_level() {
     // Move the x-axis' center to the middle of the screen
     horizontal_shift = (screen_size.x - cell_size) / 2;
 
-    for (size_t row = 0; row < current_level.rows; ++row) {
-        for (size_t column = 0; column < current_level.columns; ++column) {
+    for (size_t row = 0; row < level.get_rows(); ++row) {
+        for (size_t column = 0; column < level.get_columns(); ++column) {
 
             Vector2 pos = {
                     // Move the level to the left as the player advances to the right,
@@ -111,7 +112,7 @@ void draw_level() {
             };
 
             // Draw the level itself
-            char cell = get_level_cell(row, column);
+            char cell = level.get_cell(row, column);
             switch (cell) {
                 case WALL:
                     draw_image(wall_image, pos, cell_size);

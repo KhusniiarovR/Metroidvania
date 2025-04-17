@@ -1,23 +1,25 @@
 #include "enemy.h"
 #include "raylib.h"
 #include "globals.h"
+#include "level.h"
 
 extern Enemy enemy;
+extern Level level;
 
 void Enemy::spawn() {
     // Create enemies, incrementing their amount every time a new one is created
     enemies.clear();
 
-    for (size_t row = 0; row < current_level.rows; ++row) {
-        for (size_t column = 0; column < current_level.columns; ++column) {
-            char cell = get_level_cell(row, column);
+    for (size_t row = 0; row < level.get_rows(); ++row) {
+        for (size_t column = 0; column < level.get_columns(); ++column) {
+            char cell = level.get_cell(row, column);
 
             if (cell == ENEMY) {
                 // Instantiate and add an enemy to the level
                 enemy_data new_enemy = { {static_cast<float>(column), static_cast<float>(row)}, true };
                 enemies.push_back(new_enemy);
 
-                set_level_cell(row, column, AIR);
+                level.set_cell(row, column, AIR);
             }
         }
     }
@@ -30,7 +32,7 @@ void Enemy::update() {
         next_x += (enemy.is_looking_right ? ENEMY_MOVEMENT_SPEED : -ENEMY_MOVEMENT_SPEED);
 
         // If its next position collides with a wall, turn around
-        if (is_colliding({next_x, enemy.pos.y}, WALL)) {
+        if (level.is_colliding({next_x, enemy.pos.y}, WALL)) {
             enemy.is_looking_right = !enemy.is_looking_right;
         }
         // Otherwise, keep moving

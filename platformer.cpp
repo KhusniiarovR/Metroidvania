@@ -9,6 +9,7 @@
 
 Player player;
 Enemy enemy;
+Level level;
 
 void update_game() {
     game_frame++;
@@ -18,7 +19,7 @@ void update_game() {
             if (IsKeyPressed(KEY_ENTER)) {
                 SetExitKey(0);
                 game_state = GAME_STATE;
-                load_level(0);
+                level.load(0);
             }
             break;
 
@@ -32,7 +33,7 @@ void update_game() {
             }
 
             // Calculating collisions to decide whether the player is allowed to jump
-            player.set_on_ground(is_colliding({player.get_position().x, player.get_position().y + 0.1f}, WALL));
+            player.set_on_ground(level.is_colliding({player.get_position().x, player.get_position().y + 0.1f}, WALL));
             if ((IsKeyDown(KEY_UP) || IsKeyDown(KEY_W) || IsKeyDown(KEY_SPACE)) && player.get_is_on_ground()) {
                 player.set_y_velocity(-JUMP_STRENGTH);
             }
@@ -56,7 +57,7 @@ void update_game() {
 
             if (IsKeyPressed(KEY_ENTER)) {
                 if (player.get_lives() > 0) {
-                    load_level(0);
+                    level.load(0);
                     game_state = GAME_STATE;
                 }
                 else {
@@ -68,16 +69,16 @@ void update_game() {
 
         case GAME_OVER_STATE:
             if (IsKeyPressed(KEY_ENTER)) {
-                reset_level_index();
+                level.reset_index();
                 player.reset_stats();
                 game_state = GAME_STATE;
-                load_level(0);
+                level.load(0);
             }
             break;
 
         case VICTORY_STATE:
             if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_ESCAPE)) {
-                reset_level_index();
+                level.reset_index();
                 player.reset_stats();
                 game_state = MENU_STATE;
                 SetExitKey(KEY_ESCAPE);
@@ -131,7 +132,7 @@ int main() {
     load_fonts();
     load_images();
     load_sounds();
-    load_level();
+    level.load();
 
     while (!WindowShouldClose()) {
         BeginDrawing();
@@ -142,7 +143,6 @@ int main() {
         EndDrawing();
     }
 
-    unload_level();
     unload_sounds();
     unload_images();
     unload_fonts();
