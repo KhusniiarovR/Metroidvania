@@ -28,7 +28,7 @@ public:
 private:
 
     int rows, columns;
-    char *data = nullptr;
+    std::string data;
     int level_index = 0;
     int LEVEL_COUNT = 3;
     void decode_file();

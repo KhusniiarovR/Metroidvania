@@ -6,14 +6,14 @@ extern Player player;
 
 Level::Level() : rows(0), columns(0) {}
 
-bool Level::is_inside(int row, int column) const {
+bool Level::is_inside(const int row, const int column) const {
     if (row < 0 || row >= rows) return false;
     if (column < 0 || column >= columns) return false;
     return true;
 }
 
-bool Level::is_colliding(Vector2 pos, char look_for) {
-    Rectangle entity_hitbox = {pos.x, pos.y, 1.0f, 1.0f};
+bool Level::is_colliding(const Vector2 pos, const char look_for) {
+    const Rectangle entity_hitbox = {pos.x, pos.y, 1.0f, 1.0f};
 
     // Scan the adjacent area in the level to look for a match in collision
     for (int row = pos.y - 1; row < pos.y + 1; ++row) {
@@ -21,7 +21,7 @@ bool Level::is_colliding(Vector2 pos, char look_for) {
             // Check if the cell is out-of-bounds
             if (!is_inside(row, column)) continue;
             if (get_cell(row, column) == look_for) {
-                Rectangle block_hitbox = {(float) column, (float) row, 1.0f, 1.0f};
+                Rectangle block_hitbox = {static_cast<float>(column), static_cast<float>(row), 1.0f, 1.0f};
                 if (CheckCollisionRecs(entity_hitbox, block_hitbox)) {
                     return true;
                 }
@@ -63,9 +63,13 @@ void Level::load_level(int offset) {
     if (level_index >= LEVEL_COUNT) {
         game_state = VICTORY_STATE;
         create_victory_menu_background();
-        level_index = 0;
+        reset_index();
         return;
     }
+
+    data.clear();
+    rows = 1;
+    columns = 0;
 
     decode_file();
 
@@ -81,9 +85,6 @@ void Level::load_level(int offset) {
 }
 
 void Level::decode_file() {
-    data = nullptr;
-    rows = 1;
-    columns = 0;
 
     std::ifstream level_file("data/levels.rll");
 
@@ -103,11 +104,10 @@ void Level::decode_file() {
     std::getline(level_file, nextLine);
 
     std::string decoded;
-    size_t i = -1;
+    long long i = 0;
     int columns_number = 0;
 
     while (i < nextLine.length()) {
-        ++i;
         if (isdigit(nextLine[i])) {
             int num = 0;
             while (i < nextLine.length() && isdigit(nextLine[i])) {
@@ -118,12 +118,12 @@ void Level::decode_file() {
                 char symbol = nextLine[i++];
                 decoded.append(num, symbol);
                 columns_number += num;
-                ++i;
                 continue;
             }
         }
 
         else if (nextLine[i] == '|') {
+            columns = columns_number;
             columns_number = 0;
             rows++;
             ++i;
@@ -132,14 +132,11 @@ void Level::decode_file() {
 
         decoded.push_back(nextLine[i]);
         columns_number++;
+        i++;
 
-        columns = columns_number;
     }
-    // todo исправь декодинг весь
-    std::cerr << decoded;
 
-    std::cout << "\n" << rows << "\n" << columns << "\n";
-    strcpy(data, decoded.c_str());
+    data = decoded;
 
     level_file.close();
 }

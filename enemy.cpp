@@ -9,7 +9,7 @@ extern Player player;
 
 void Enemy::spawn() {
     // Create enemies, incrementing their amount every time a new one is created
-    //enemies.clear();
+    enemies.clear();
 
     for (size_t row = 0; row < level.get_rows(); ++row) {
         for (size_t column = 0; column < level.get_columns(); ++column) {
