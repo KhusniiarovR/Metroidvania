@@ -9,12 +9,13 @@ class Player
 public:
     Player();
     void reset_stats();
-    int get_total_score() const;
-    void spawn();
+
+    void spawn(float pos_x, float pos_y);
     void kill();
     void move_horizontally(float delta);
     void update();
     void update_gravity();
+    void out_of_bounds();
 
     [[nodiscard]] Vector2 get_position() const {return position;}
     [[nodiscard]] float get_y_velocity() const {return y_velocity;}
@@ -25,6 +26,7 @@ public:
     [[nodiscard]]bool get_is_looking_forward() const {return is_looking_forward;}
     [[nodiscard]]bool get_is_moving() const {return is_moving;}
     void set_moving(bool moving) { is_moving = moving; }
+    [[nodiscard]] int get_total_score() const;
 
 private:
     void increment_score();

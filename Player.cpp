@@ -34,21 +34,11 @@ void Player::increment_score() {
     level_scores[level.get_index()]++;
 }
 
-void Player::spawn() {
+void Player::spawn(float pos_x, float pos_y) {
     y_velocity = 0;
 
-    for (size_t row = 0; row < level.get_rows(); ++row) {
-        for (size_t column = 0; column < level.get_columns(); ++column) {
-            char cell = level.get_cell(row, column);;
-
-            if (cell == PLAYER) {
-                position.x = column;
-                position.y = row;
-                level.set_cell(row, column, AIR);
-                return;
-            }
-        }
-    }
+    position.x = pos_x;
+    position.y = pos_y;
 }
 
 void Player::kill() {
@@ -98,6 +88,7 @@ void Player::update_gravity() {
 void Player::update() {
     player.update_gravity();
 
+    player.out_of_bounds();
     // Interacting with other level elements
     if (level.is_colliding(position, COIN)) {
         level.get_collider(position, COIN) = AIR; // Removes the coin
@@ -118,7 +109,7 @@ void Player::update() {
         }
         else {
             // Allow the player to exit after the level timer goes to zero
-            level.load_level(1);
+            level.load_level(level.get_index() + 1);
             PlaySound(exit_sound);
         }
     }
@@ -128,7 +119,7 @@ void Player::update() {
     }
 
     // Kill the player if they touch a spike or fall below the level
-    if (level.is_colliding(position, SPIKE) || position.y > level.get_rows()) {
+    if (level.is_colliding(position, SPIKE)) {
         player.kill();
     }
 
@@ -150,3 +141,25 @@ void Player::update() {
     }
 }
 
+void Player::out_of_bounds() {
+    if (player.position.x < 0) {
+        int id, x, y;
+        std::tie(id, x, y) = level.get_bound(1);
+        level.load_level(id, x, y);
+    }
+    else if (player.position.x > level.get_columns()) {
+        int id, x, y;
+        std::tie(id, x, y) = level.get_bound(2);
+        level.load_level(id, x, y);
+    }
+    else if (player.position.y < 0) {
+        int id, x, y;
+        std::tie(id, x, y) = level.get_bound(3);
+        level.load_level(id, x, y);
+    }
+    else if (player.position.y > level.get_rows()) {
+        int id, x, y;
+        std::tie(id, x, y) = level.get_bound(4);
+        level.load_level(id, x, y);
+    }
+}

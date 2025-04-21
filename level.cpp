@@ -56,11 +56,13 @@ void Level::reset_index() {
     level_index = 0;
 }
 
-void Level::load_level(int offset) {
-    level_index += offset;
+void Level::load_level(int offset, float player_pos_x, float player_pos_y) {
+    if (offset == -1) return;
+
+    level_index = offset;
 
     // Win logic
-    if (level_index >= LEVEL_COUNT) {
+    if (level_index == 99) {
         game_state = VICTORY_STATE;
         create_victory_menu_background();
         reset_index();
@@ -74,7 +76,7 @@ void Level::load_level(int offset) {
     decode_file();
 
     // Instantiate entities
-    player.spawn();
+    player.spawn(player_pos_x, player_pos_y);
     enemy.spawn();
 
     // Calculate positioning and sizes
@@ -138,6 +140,12 @@ void Level::decode_file() {
 
     data = decoded;
 
+    for (auto & bound : bounds) {
+        for (int & j : bound) {
+            level_file >> j;
+        }
+    }
+
     level_file.close();
 }
 
@@ -161,6 +169,14 @@ int Level::get_index() const {
     return level_index;
 }
 
-int Level::get_count() const {
-    return LEVEL_COUNT;
+
+std::tuple<int, int, int> Level::get_bound(int dir) const {
+    if (dir >= 1 && dir <= 4) {
+        return {
+            bounds[dir - 1][0], // room_id
+            bounds[dir - 1][1], // spawn_x
+            bounds[dir - 1][2]  // spawn_y
+        };
+    }
+    return { -1, 0, 0 };
 }

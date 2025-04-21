@@ -58,7 +58,7 @@ void update_game() {
 
             if (IsKeyPressed(KEY_ENTER)) {
                 if (player.get_lives() > 0) {
-                    level.load_level(0);
+                    level.load_level(level.get_index());
                     game_state = GAME_STATE;
                 }
                 else {
