@@ -31,6 +31,7 @@ private:
     std::string data;
     int level_index = 0;
     void decode_file();
+    std::string Level::calculate_level_size(const std::string& nextLine);
 
     int bounds[4][3]{
         {-1,0,0}, // left
@@ -39,7 +40,6 @@ private:
         {-1,0,0}  // down
     };
 };
-
 
 
 #endif //LEVEL_H

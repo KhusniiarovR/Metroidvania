@@ -86,24 +86,7 @@ void Level::load_level(int offset, float player_pos_x, float player_pos_y) {
     timer = MAX_LEVEL_TIME;
 }
 
-void Level::decode_file() {
-
-    std::ifstream level_file("data/levels.rll");
-
-    if (!level_file) {
-        std::cerr << "can't open levels.rll!" << std::endl;
-    }
-
-    std::string line;
-    std::string target_level = "; Level " + std::to_string(level_index + 1);
-    while (std::getline(level_file, line)) {
-        if (line == target_level) {
-            break;
-        }
-    }
-
-    std::string nextLine;
-    std::getline(level_file, nextLine);
+std::string Level::calculate_level_size(const std::string& nextLine) {
 
     std::string decoded;
     long long i = 0;
@@ -135,10 +118,31 @@ void Level::decode_file() {
         decoded.push_back(nextLine[i]);
         columns_number++;
         i++;
-
     }
 
-    data = decoded;
+    return decoded;
+}
+
+void Level::decode_file() {
+
+    std::ifstream level_file("data/levels.rll");
+
+    if (!level_file) {
+        std::cerr << "can't open levels.rll!" << std::endl;
+    }
+
+    std::string line;
+    std::string target_level = "; Level " + std::to_string(level_index + 1);
+    while (std::getline(level_file, line)) {
+        if (line == target_level) {
+            break;
+        }
+    }
+
+    std::string nextLine;
+    std::getline(level_file, nextLine);
+
+    data = calculate_level_size(nextLine);
 
     for (auto & bound : bounds) {
         for (int & j : bound) {
@@ -168,7 +172,6 @@ int Level::get_columns() const {
 int Level::get_index() const {
     return level_index;
 }
-
 
 std::tuple<int, int, int> Level::get_bound(int dir) const {
     if (dir >= 1 && dir <= 4) {
