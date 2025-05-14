@@ -20,7 +20,7 @@ void update_game() {
             if (IsKeyPressed(KEY_ENTER)) {
                 SetExitKey(0);
                 game_state = GAME_STATE;
-                level.load_level(0);
+                level.load_level(1);
             }
             break;
 
@@ -58,7 +58,7 @@ void update_game() {
 
             if (IsKeyPressed(KEY_ENTER)) {
                 if (player.get_lives() > 0) {
-                    level.load_level(level.get_index());
+                    level.load_level(level.get_index() + 1);
                     game_state = GAME_STATE;
                 }
                 else {

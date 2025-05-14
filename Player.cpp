@@ -29,6 +29,17 @@ int Player::get_total_score() const {
     return sum;
 }
 
+Vector2 Player::get_player_pos() const {
+    for (float i = 0; i < level.get_rows(); i++) {
+        for (float j = 0; j < level.get_columns(); j++) {
+            char symbol = level.get_cell(i, j);
+            if (symbol == current_bound) return {j, i};
+        }
+    }
+    return {0,0};
+}
+
+
 void Player::increment_score() {
     PlaySound(coin_sound);
     level_scores[level.get_index()]++;
@@ -46,7 +57,7 @@ void Player::kill() {
     PlaySound(player_death_sound);
     game_state = DEATH_STATE;
     lives--;
-    level_scores[level.get_index()] = 0;
+    level_scores[level.get_index()] = 1;
 }
 
 void Player::move_horizontally(float delta) {
@@ -143,23 +154,19 @@ void Player::update() {
 
 void Player::out_of_bounds() {
     if (player.position.x < 0) {
-        int id, x, y;
-        std::tie(id, x, y) = level.get_bound(1);
-        level.load_level(id, x, y);
+        current_bound = 'L';
+        level.load_level(level.get_bounds(1));
     }
     else if (player.position.x > level.get_columns()) {
-        int id, x, y;
-        std::tie(id, x, y) = level.get_bound(2);
-        level.load_level(id, x, y);
+        current_bound = 'R';
+        level.load_level(level.get_bounds(2));
     }
     else if (player.position.y < 0) {
-        int id, x, y;
-        std::tie(id, x, y) = level.get_bound(3);
-        level.load_level(id, x, y);
+        current_bound = 'U';
+        level.load_level(level.get_bounds(3));
     }
     else if (player.position.y > level.get_rows()) {
-        int id, x, y;
-        std::tie(id, x, y) = level.get_bound(4);
-        level.load_level(id, x, y);
+        current_bound = 'D';
+        level.load_level(level.get_bounds(4));
     }
 }

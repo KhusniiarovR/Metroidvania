@@ -53,16 +53,15 @@ char& Level::get_collider(Vector2 pos, char look_for) {
 }
 
 void Level::reset_index() {
-    level_index = 0;
+    level_index = 1;
 }
 
-void Level::load_level(int offset, float player_pos_x, float player_pos_y) {
+void Level::load_level(int offset) {
     if (offset == -1) return;
 
     level_index = offset;
 
-    // Win logic
-    if (level_index == 99) {
+    if (level_index == -2) {
         game_state = VICTORY_STATE;
         create_victory_menu_background();
         reset_index();
@@ -74,10 +73,6 @@ void Level::load_level(int offset, float player_pos_x, float player_pos_y) {
     columns = 0;
 
     decode_file();
-
-    // Instantiate entities
-    player.spawn(player_pos_x, player_pos_y);
-    enemy.spawn();
 
     // Calculate positioning and sizes
     derive_graphics_metrics_from_loaded_level();
@@ -101,8 +96,12 @@ std::string Level::calculate_level_size(const std::string& nextLine) {
             }
             if (i < nextLine.length()) {
                 char symbol = nextLine[i++];
-                decoded.append(num, symbol);
                 columns_number += num;
+                if (symbol == 'L' || symbol == 'R' || symbol == 'U' || symbol == 'D') {
+                    decoded.append(num, '-');
+                    continue;
+                }
+                decoded.append(num, symbol);
                 continue;
             }
         }
@@ -132,7 +131,7 @@ void Level::decode_file() {
     }
 
     std::string line;
-    std::string target_level = "; Level " + std::to_string(level_index + 1);
+    std::string target_level = "; Level " + std::to_string(level_index);
     while (std::getline(level_file, line)) {
         if (line == target_level) {
             break;
@@ -144,10 +143,12 @@ void Level::decode_file() {
 
     data = calculate_level_size(nextLine);
 
-    for (auto & bound : bounds) {
-        for (int & j : bound) {
-            level_file >> j;
-        }
+    Vector2 player_pos = player.get_player_pos();
+    player.spawn(player_pos.x, player_pos.y);
+    enemy.spawn();
+
+    for (int & index_to_bound : index_to_bounds) {
+        level_file >> index_to_bound;
     }
 
     level_file.close();
@@ -173,13 +174,9 @@ int Level::get_index() const {
     return level_index;
 }
 
-std::tuple<int, int, int> Level::get_bound(int dir) const {
+int Level::get_bounds(int dir) const {
     if (dir >= 1 && dir <= 4) {
-        return {
-            bounds[dir - 1][0], // room_id
-            bounds[dir - 1][1], // spawn_x
-            bounds[dir - 1][2]  // spawn_y
-        };
+        return index_to_bounds[dir-1];
     }
-    return { -1, 0, 0 };
+    return -1;
 }

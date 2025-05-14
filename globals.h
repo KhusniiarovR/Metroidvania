@@ -19,8 +19,6 @@ inline const char WALL      = '#',
                   COIN      = '*',
                   EXIT      = 'E';
 
-
-
 /* Timer-mechanic related */
 inline const int MAX_LEVEL_TIME = 50 * 60;
 inline int timer = MAX_LEVEL_TIME;

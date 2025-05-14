@@ -4,7 +4,6 @@
 #include "globals.h"
 #include "player.h"
 
-
 class Enemy
 {
 public:
@@ -25,7 +24,5 @@ private:
 
     std::vector<enemy_data> enemies;
 };
-
-
 
 #endif //ENEMY_H

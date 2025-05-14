@@ -8,8 +8,8 @@ class Player
 {
 public:
     Player();
-    void reset_stats();
 
+    void reset_stats();
     void spawn(float pos_x, float pos_y);
     void kill();
     void move_horizontally(float delta);
@@ -27,6 +27,7 @@ public:
     [[nodiscard]]bool get_is_moving() const {return is_moving;}
     void set_moving(bool moving) { is_moving = moving; }
     [[nodiscard]] int get_total_score() const;
+    [[nodiscard]] Vector2 get_player_pos() const;
 
 private:
     void increment_score();
@@ -37,10 +38,14 @@ private:
     bool is_looking_forward;
     bool is_moving;
 
+    int init_player_pos_x, init_player_pos_y = 1;
+
     int level_scores[3];
 
     const int MAX_LIVES = 3;
     int lives = MAX_LIVES;
+
+    char current_bound = 'L';
 };
 
 
