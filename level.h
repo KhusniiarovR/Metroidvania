@@ -5,7 +5,6 @@
 #include "player.h"
 #include "enemy.h"
 
-
 extern Enemy enemy;
 
 class Level {
@@ -33,7 +32,7 @@ private:
     void decode_file();
     std::string Level::calculate_level_size(const std::string& nextLine);
 
-    int index_to_bounds[4]{ -1,-1,-1,-1 };
+    int index_to_bounds[4]{0,0,0,0};
 };
 
 

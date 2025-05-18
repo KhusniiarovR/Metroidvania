@@ -1,6 +1,7 @@
 #include "level.h"
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 extern Player player;
 
@@ -57,11 +58,11 @@ void Level::reset_index() {
 }
 
 void Level::load_level(int offset) {
-    if (offset == -1) return;
+    if (offset == 0) return;
 
     level_index = offset;
 
-    if (level_index == -2) {
+    if (level_index == -1) {
         game_state = VICTORY_STATE;
         create_victory_menu_background();
         reset_index();
@@ -96,11 +97,10 @@ std::string Level::calculate_level_size(const std::string& nextLine) {
             }
             if (i < nextLine.length()) {
                 char symbol = nextLine[i++];
-                columns_number += num;
                 if (symbol == 'L' || symbol == 'R' || symbol == 'U' || symbol == 'D') {
-                    decoded.append(num, '-');
                     continue;
                 }
+                columns_number += num;
                 decoded.append(num, symbol);
                 continue;
             }
@@ -141,14 +141,24 @@ void Level::decode_file() {
     std::string nextLine;
     std::getline(level_file, nextLine);
 
-    data = calculate_level_size(nextLine);
+    size_t pos = nextLine.find("::");
+    if (pos == std::string::npos) {
+        std::cerr << "level line, missing '::'" << std::endl;
+        return;
+    }
+
+    std::string level_data_str = nextLine.substr(0, pos);
+    std::string bounds_data_str = nextLine.substr(pos + 2);
+
+    data = calculate_level_size(level_data_str);
 
     Vector2 player_pos = player.get_player_pos();
     player.spawn(player_pos.x, player_pos.y);
     enemy.spawn();
 
+    std::istringstream bounds_stream(bounds_data_str);
     for (int & index_to_bound : index_to_bounds) {
-        level_file >> index_to_bound;
+        bounds_stream >> index_to_bound;
     }
 
     level_file.close();

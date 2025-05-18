@@ -73,7 +73,7 @@ void update_game() {
                 level.reset_index();
                 player.reset_stats();
                 game_state = GAME_STATE;
-                level.load_level(0);
+                level.load_level(1);
             }
             break;
 
@@ -133,7 +133,7 @@ int main() {
     load_fonts();
     load_images();
     load_sounds();
-    level.load_level(0);
+    level.load_level(1);
 
     while (!WindowShouldClose()) {
         BeginDrawing();
