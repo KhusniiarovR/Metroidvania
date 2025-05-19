@@ -21,5 +21,9 @@ add_executable(
         player.h player.cpp
         enemy.h enemy.cpp
         assets.h
-        utilities.h)
+        utilities.h
+        Game.h
+        constants/game_elements.h
+        constants/physics.h
+)
 target_link_libraries(platformer PRIVATE raylib)

@@ -2,6 +2,8 @@
 #include "raylib.h"
 #include "globals.h"
 #include "level.h"
+#include "constants/game_elements.h"
+#include "constants/physics.h"
 
 extern Enemy enemy;
 extern Level level;

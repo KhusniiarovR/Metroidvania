@@ -13,9 +13,8 @@ bool Level::is_inside(const int row, const int column) const {
     return true;
 }
 
-bool Level::is_colliding(const Vector2 pos, const char look_for) {
-    const Rectangle entity_hitbox = {pos.x, pos.y, 1.0f, 1.0f};
-
+bool Level::is_colliding(const Vector2 pos, const char look_for, float width, float height) {
+    const Rectangle entity_hitbox = {pos.x, pos.y, width, height};
     // Scan the adjacent area in the level to look for a match in collision
     for (int row = pos.y - 1; row < pos.y + 1; ++row) {
         for (int column = pos.x - 1; column < pos.x + 1; ++column) {
@@ -60,9 +59,10 @@ void Level::reset_index() {
 void Level::load_level(int offset) {
     if (offset == 0) return;
 
+    if (offset == -1) player.kill();
     level_index = offset;
 
-    if (level_index == -1) {
+    if (level_index == -2) {
         game_state = VICTORY_STATE;
         create_victory_menu_background();
         reset_index();
@@ -72,14 +72,13 @@ void Level::load_level(int offset) {
     data.clear();
     rows = 1;
     columns = 0;
+    player.set_player_score(level_index, player.get_player_score(level_index));
 
     decode_file();
 
     // Calculate positioning and sizes
     derive_graphics_metrics_from_loaded_level();
 
-    // Reset the timer
-    timer = MAX_LEVEL_TIME;
 }
 
 std::string Level::calculate_level_size(const std::string& nextLine) {
@@ -97,9 +96,6 @@ std::string Level::calculate_level_size(const std::string& nextLine) {
             }
             if (i < nextLine.length()) {
                 char symbol = nextLine[i++];
-                if (symbol == 'L' || symbol == 'R' || symbol == 'U' || symbol == 'D') {
-                    continue;
-                }
                 columns_number += num;
                 decoded.append(num, symbol);
                 continue;

@@ -8,37 +8,12 @@
 #include <cstddef>
 #include <cmath>
 
-/* Game Elements */
-
-inline const char WALL      = '#',
-                  WALL_DARK = '=',
-                  AIR       = '-',
-                  SPIKE     = '^',
-                  PLAYER    = '@',
-                  ENEMY     = '&',
-                  COIN      = '*',
-                  EXIT      = 'E';
-
 /* Timer-mechanic related */
-inline const int MAX_LEVEL_TIME = 50 * 60;
-inline int timer = MAX_LEVEL_TIME;
-inline int time_to_coin_counter = 0;
+inline int timer = 0;
 
-/* Physics constants */
-
-inline const float PLAYER_MOVEMENT_SPEED = 0.1f;
-inline const float JUMP_STRENGTH         = 0.3f;
-inline const float CEILING_BOUNCE_OFF    = 0.05f;
-inline const float ENEMY_MOVEMENT_SPEED  = 0.07f;
-inline const float BOUNCE_OFF_ENEMY      = 0.1f;
-inline const float GRAVITY_FORCE         = 0.01f;
-
-
-/* Graphic Metrics */
-
-// UI
+// graphics
 inline const float SCREEN_SCALE_DIVISOR = 700.0f; // The divisor was found through experimentation
-                                                  // to scale things accordingly to look pleasant.
+// to scale things accordingly to look pleasant.
 inline Vector2 screen_size;
 inline float screen_scale; // Used to scale str/UI components size and displacements based on the screen_size size
 inline float cell_size;
@@ -51,6 +26,7 @@ inline float background_y_offset;
 inline const float PARALLAX_PLAYER_SCROLLING_SPEED = 0.003f;
 inline const float PARALLAX_IDLE_SCROLLING_SPEED = 0.00005f;
 inline const float PARALLAX_LAYERED_SPEED_DIFFERENCE = 3.0f;
+
 
 /* Fonts */
 
@@ -65,58 +41,6 @@ struct Text {
     Color color = WHITE;
     float spacing = 4.0f;
     Font* font = &menu_font;
-};
-
-inline Text game_title = {
-    "Platformer",
-    {0.50f, 0.50f},
-    100.0f,
-    RED
-};
-
-inline Text game_subtitle = {
-    "Press Enter to Start",
-    {0.50f, 0.65f}
-};
-
-inline Text game_paused = {
-    "Press Escape to Resume"
-};
-
-inline Text death_title = {
-    "You Died!",
-    {0.50f, 0.50f},
-    80.0f,
-    RED
-};
-
-inline Text death_subtitle = {
-    "Press Enter to Try Again",
-    {0.50f, 0.65f}
-};
-
-inline Text game_over_title = {
-    "Game Over",
-    {0.50f, 0.50f},
-    120.0f,
-    RED
-};
-
-inline Text game_over_subtitle = {
-    "Press Enter to Restart",
-    {0.50f, 0.675f}
-};
-
-inline Text victory_title = {
-    "You Won!",
-    {0.50f, 0.50f},
-    100.0f,
-    RED
-};
-
-inline Text victory_subtitle = {
-    "Press Enter to go back to menu",
-    {0.50f, 0.65f}
 };
 
 /* Images and Sprites */
@@ -136,6 +60,9 @@ inline Texture2D wall_image;
 inline Texture2D wall_dark_image;
 inline Texture2D spike_image;
 inline Texture2D exit_image;
+inline Texture2D platform_image;
+inline Texture2D spring_image;
+inline Texture2D menu_image;
 inline sprite coin_sprite;
 
 // UI Elements
@@ -165,6 +92,7 @@ inline Sound exit_sound;
 inline Sound player_death_sound;
 inline Sound kill_enemy_sound;
 inline Sound game_over_sound;
+inline Sound spring_sound;
 
 /* Victory Menu Background */
 
@@ -242,10 +170,5 @@ void draw_sprite(sprite &sprite, Vector2 pos, float size);
 
 void load_sounds();
 void unload_sounds();
-
-// UTILITIES_H
-
-float rand_from_to(float from, float to);
-float rand_up_to(float to);
 
 #endif // GLOBALS_H

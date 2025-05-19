@@ -4,6 +4,8 @@
 #include "globals.h"
 #include "Player.h"
 #include "enemy.h"
+#include "constants/game_elements.h"
+#include "utilities.h"
 
 extern Player player;
 extern Enemy enemy;
@@ -129,6 +131,12 @@ void draw_level() {
                 case EXIT:
                     draw_image(exit_image, pos, cell_size);
                     break;
+                case PLATFORM:
+                    draw_image(platform_image, pos, cell_size);
+                    break;
+                case SPRING:
+                    draw_image(spring_image, pos, cell_size);
+                break;
                 default:
                     break;
             }
@@ -166,7 +174,57 @@ void draw_player() {
     }
 }
 
+inline Text game_title = {
+    "Platformer",
+    {0.50f, 0.50f},
+    100.0f,
+    RED
+};
 
+inline Text game_subtitle = {
+    "Press Enter to Start",
+    {0.50f, 0.65f}
+};
+
+inline Text game_paused = {
+    "Press Escape to Resume"
+};
+
+inline Text death_title = {
+    "You Died!",
+    {0.50f, 0.50f},
+    80.0f,
+    RED
+};
+
+inline Text death_subtitle = {
+    "Press Enter to Try Again",
+    {0.50f, 0.65f}
+};
+
+inline Text game_over_title = {
+    "Game Over",
+    {0.50f, 0.50f},
+    120.0f,
+    RED
+};
+
+inline Text game_over_subtitle = {
+    "Press Enter to Restart",
+    {0.50f, 0.675f}
+};
+
+inline Text victory_title = {
+    "You Won!",
+    {0.50f, 0.50f},
+    100.0f,
+    RED
+};
+
+inline Text victory_subtitle = {
+    "Press Enter to go back to menu",
+    {0.50f, 0.65f}
+};
 
 // Menus
 void draw_menu() {

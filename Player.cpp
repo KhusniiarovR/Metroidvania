@@ -2,6 +2,8 @@
 #include "enemy.h"
 #include "globals.h"
 #include "level.h"
+#include "constants/game_elements.h"
+#include "constants/physics.h"
 
 extern Player player;
 extern Enemy enemy;
@@ -13,7 +15,7 @@ Player::Player() : position({0.0f,0.0f}), y_velocity(0),
 
 
 void Player::reset_stats() {
-    lives = MAX_LIVES;
+    lives = 3;
     for (int & level_score : level_scores) {
         level_score = 0;
     }
@@ -42,7 +44,7 @@ Vector2 Player::get_player_pos() const {
 
 void Player::increment_score() {
     PlaySound(coin_sound);
-    level_scores[level.get_index()]++;
+    level_scores[level.get_index()-1]++;
 }
 
 void Player::spawn(float pos_x, float pos_y) {
@@ -57,7 +59,7 @@ void Player::kill() {
     PlaySound(player_death_sound);
     game_state = DEATH_STATE;
     lives--;
-    level_scores[level.get_index()] = 1;
+    level_scores[level.get_index()-1] = 0;
 }
 
 void Player::move_horizontally(float delta) {
@@ -78,18 +80,27 @@ void Player::move_horizontally(float delta) {
 }
 
 void Player::update_gravity() {
-    // Bounce downwards if approaching a ceiling with upwards velocity
     if (level.is_colliding({position.x, position.y - 0.1f}, WALL) && y_velocity < 0) {
         y_velocity = CEILING_BOUNCE_OFF;
     }
 
+    if (level.is_colliding({position.x, position.y + 0.1f}, SPRING)) {
+        y_velocity = -CEILING_BOUNCE_OFF * 8;
+        PlaySound(spring_sound);
+    }
     // Add gravity to player's y-position
     position.y += y_velocity;
     y_velocity += GRAVITY_FORCE;
 
     // If the player is on ground, zero player's y-velocity
     // If the player is *in* ground, pull them out by rounding their position
-    is_on_ground = level.is_colliding({position.x, position.y + 0.1f}, WALL);
+    is_on_ground = level.is_colliding({position.x, position.y + 0.1f}, WALL)
+    || (
+        level.is_colliding({position.x, position.y + 0.0001f}, PLATFORM) &&
+        y_velocity >= 0 &&
+        !(IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN))
+    );
+
     if (is_on_ground) {
         y_velocity = 0;
         position.y = roundf(position.y);
@@ -106,28 +117,7 @@ void Player::update() {
         player.increment_score();
     }
 
-    if (level.is_colliding(position, EXIT)) {
-        // Reward player for being swift
-        if (timer > 0) {
-            // For every 9 seconds remaining, award the player 1 coin
-            timer -= 25;
-            time_to_coin_counter += 5;
-
-            if (time_to_coin_counter / 60 > 1) {
-                player.increment_score();
-                time_to_coin_counter = 0;
-            }
-        }
-        else {
-            // Allow the player to exit after the level timer goes to zero
-            level.load_level(level.get_index() + 1);
-            PlaySound(exit_sound);
-        }
-    }
-    else {
-        // Decrement the level timer if not at an exit
-        if (timer >= 0) timer--;
-    }
+    timer++;
 
     // Kill the player if they touch a spike or fall below the level
     if (level.is_colliding(position, SPIKE)) {
@@ -150,6 +140,8 @@ void Player::update() {
             player.kill();
         }
     }
+
+
 }
 
 void Player::out_of_bounds() {

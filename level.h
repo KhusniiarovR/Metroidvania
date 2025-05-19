@@ -11,7 +11,7 @@ class Level {
 public:
     Level();
     [[nodiscard]] bool is_inside(int row, int column) const;
-    bool is_colliding(Vector2 pos, char look_for = '#');
+    bool is_colliding(Vector2 pos, char look_for = '#', float width = 1.0f, float height = 1.0f);
     char& get_collider(Vector2 pos, char look_for);
 
     void reset_index();
