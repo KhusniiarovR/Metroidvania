@@ -42,7 +42,6 @@ struct Sprite {
 inline Texture2D wall_image;
 inline Texture2D wall_dark_image;
 inline Texture2D spike_image;
-inline Texture2D exit_image;
 inline Texture2D platform_image;
 inline Texture2D spring_image;
 inline Texture2D menu_image;

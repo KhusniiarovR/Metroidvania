@@ -41,7 +41,7 @@ void derive_graphics_metrics_from_loaded_level() {
 
 void draw_parallax_background() {
     // First uses the player's position
-    float initial_offset      = -(Player::get_instance().get_position().x * graphics::PARALLAX_PLAYER_SCROLLING_SPEED + game_frame * graphics::PARALLAX_IDLE_SCROLLING_SPEED);
+    float initial_offset      = -(graphics::PARALLAX_PLAYER_SCROLLING_SPEED + game_frame * graphics::PARALLAX_IDLE_SCROLLING_SPEED);
 
     // Calculate offsets for different layers
     float background_offset   = initial_offset;
@@ -122,9 +122,6 @@ void draw_level() {
                     break;
                 case game_elements::COIN:
                     draw_sprite(coin_sprite, pos, graphics::cell_size);
-                    break;
-                case game_elements::EXIT:
-                    draw_image(exit_image, pos, graphics::cell_size);
                     break;
                 case game_elements::PLATFORM:
                     draw_image(platform_image, pos, graphics::cell_size);

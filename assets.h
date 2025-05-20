@@ -57,7 +57,6 @@ void load_images() {
     wall_image                   = LoadTexture("data/images/wall.png");
     wall_dark_image              = LoadTexture("data/images/wall_dark.png");
     spike_image                  = LoadTexture("data/images/spikes.png");
-    exit_image                   = LoadTexture("data/images/exit.png");
     platform_image               = LoadTexture("data/images/platform.png");
     spring_image               = LoadTexture("data/images/spring.png");
     menu_image               = LoadTexture("data/images/menu.png");
@@ -84,7 +83,6 @@ void unload_images() {
     UnloadTexture(wall_image);
     UnloadTexture(wall_dark_image);
     UnloadTexture(spike_image);
-    UnloadTexture(exit_image);
     UnloadTexture(platform_image);
     UnloadTexture(spring_image);
     UnloadTexture(menu_image);
