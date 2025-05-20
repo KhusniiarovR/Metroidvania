@@ -6,46 +6,18 @@
 #include "constants/game_elements.h"
 #include "constants/physics.h"
 
-extern Player player;
 extern Enemy enemy;
 extern Level level;
 
 Player::Player() : position({0.0f,0.0f}), y_velocity(0),
                    is_on_ground(true), is_moving(false),
-                   is_looking_forward(true) {}
-
+                   is_looking_forward(true), init_player_pos_x(1), init_player_pos_y(1),
+                   level_score(0), current_bound('D') {}
 
 void Player::reset_stats() {
     lives = physics::START_LIFES;
     level_score = 0;
     current_bound = 'D';
-}
-
-Vector2 Player::get_player_pos() const {
-    for (float i = 0; i < level.get_rows(); i++) {
-        for (float j = 0; j < level.get_columns(); j++) {
-            if (level.get_cell(i, j) == current_bound) return {j, i};
-        }
-    }
-
-    for (float i = 0; i < level.get_rows(); i++) { // if forgot to add spawn priority left
-        for (float j = 0; j < level.get_columns(); j++) {
-            if (level.get_cell(i, j) == 'R') return {j, i};
-        }
-    }
-
-    for (float i = 0; i < level.get_rows(); i++) { // if forgot to add spawn
-        for (float j = 0; j < level.get_columns(); j++) {
-            if (level.get_cell(i, j) == 'L' || level.get_cell(i, j) == 'U' || level.get_cell(i, j) == 'D') return {j, i};
-        }
-    }
-    return {0,0};
-}
-
-
-void Player::increment_score() {
-    PlaySound(coin_sound);
-    level_score++;
 }
 
 void Player::spawn(float pos_x, float pos_y) {
@@ -79,6 +51,40 @@ void Player::move_horizontally(float delta) {
     if (delta != 0) is_moving = true;
 }
 
+
+void Player::update() {
+    update_gravity();
+
+    out_of_bounds();
+    // Interacting with other level elements
+    if (level.is_colliding(position, game_elements::COIN)) {
+        level.get_collider(position, game_elements::COIN) = game_elements::AIR; // Removes the coin
+        increment_score();
+    }
+
+    timer++;
+
+    // Kill the player if they touch a spike or fall below the level
+    if (level.is_colliding(position, game_elements::SPIKE)) {
+        kill();
+    }
+
+    // Upon colliding with an enemy...
+    if (enemy.is_colliding_enemy(position)) {
+        // ...check if their velocity is downwards...
+        if (y_velocity > 0) {
+            // ...if yes, award the player and kill the enemy
+            enemy.remove_colliding(position);
+            PlaySound(kill_enemy_sound);
+            y_velocity = -physics::BOUNCE_OFF_ENEMY;
+        }
+        else {
+            // ...if not, kill the player
+            kill();
+        }
+    }
+}
+
 void Player::update_gravity() {
     if (level.is_colliding({position.x, position.y - 0.1f}, game_elements::WALL) && y_velocity < 0) {
         y_velocity = physics::CEILING_BOUNCE_OFF;
@@ -107,58 +113,47 @@ void Player::update_gravity() {
     }
 }
 
-void Player::update() {
-    player.update_gravity();
-
-    player.out_of_bounds();
-    // Interacting with other level elements
-    if (level.is_colliding(position, game_elements::COIN)) {
-        level.get_collider(position, game_elements::COIN) = game_elements::AIR; // Removes the coin
-        player.increment_score();
-    }
-
-    timer++;
-
-    // Kill the player if they touch a spike or fall below the level
-    if (level.is_colliding(position, game_elements::SPIKE)) {
-        player.kill();
-    }
-
-    // Upon colliding with an enemy...
-    if (enemy.is_colliding_enemy(position)) {
-        // ...check if their velocity is downwards...
-        if (y_velocity > 0) {
-            // ...if yes, award the player and kill the enemy
-            enemy.remove_colliding(position);
-            PlaySound(kill_enemy_sound);
-
-            player.increment_score();
-            y_velocity = -physics::BOUNCE_OFF_ENEMY;
-        }
-        else {
-            // ...if not, kill the player
-            player.kill();
-        }
-    }
-
-
-}
-
 void Player::out_of_bounds() {
-    if (player.position.x < 0) {
+    if (position.x < 0) {
         current_bound = 'L';
         level.load_level(level.get_bounds(1));
     }
-    else if (player.position.x > level.get_columns()) {
+    else if (position.x > level.get_columns()) {
         current_bound = 'R';
         level.load_level(level.get_bounds(2));
     }
-    else if (player.position.y < 0) {
+    else if (position.y < 0) {
         current_bound = 'U';
         level.load_level(level.get_bounds(3));
     }
-    else if (player.position.y > level.get_rows()) {
+    else if (position.y > level.get_rows()) {
         current_bound = 'D';
         level.load_level(level.get_bounds(4));
     }
+}
+
+Vector2 Player::get_spawn_pos() const {
+    for (int i = 0; i < level.get_rows(); i++) {
+        for (int j = 0; j < level.get_columns(); j++) {
+            if (level.get_cell(i, j) == current_bound) return {static_cast<float>(j), static_cast<float>(i)};
+        }
+    }
+
+    for (int i = 0; i < level.get_rows(); i++) { // if forgot to add spawn priority left
+        for (int j = 0; j < level.get_columns(); j++) {
+            if (level.get_cell(i, j) == 'R') return {static_cast<float>(j), static_cast<float>(i)};
+        }
+    }
+
+    for (int i = 0; i < level.get_rows(); i++) { // if forgot to add spawn
+        for (int j = 0; j < level.get_columns(); j++) {
+            if (level.get_cell(i, j) == 'L' || level.get_cell(i, j) == 'U' || level.get_cell(i, j) == 'D') return {static_cast<float>(j), static_cast<float>(i)};
+        }
+    }
+    return {0,0};
+}
+
+void Player::increment_score() {
+    PlaySound(coin_sound);
+    level_score++;
 }

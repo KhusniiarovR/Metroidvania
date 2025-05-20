@@ -8,7 +8,6 @@
 
 extern Enemy enemy;
 extern Level level;
-extern Player player;
 
 void Enemy::spawn() {
     // Create enemies, incrementing their amount every time a new one is created
@@ -80,7 +79,7 @@ void Enemy::draw() const {
 
     for (const auto& enemy : enemies) {
         Vector2 draw_pos = {
-            (enemy.pos.x - player.get_position().x) * graphics::cell_size + horizontal_shift,
+            (enemy.pos.x - Player::get_instance().get_position().x) * graphics::cell_size + horizontal_shift,
             enemy.pos.y * graphics::cell_size
         };
         draw_sprite(enemy_walk, draw_pos, graphics::cell_size);

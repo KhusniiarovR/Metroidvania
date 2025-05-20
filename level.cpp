@@ -3,7 +3,6 @@
 #include <iostream>
 #include <sstream>
 
-extern Player player;
 
 Level::Level() : rows(0), columns(0) {}
 
@@ -72,7 +71,7 @@ void Level::load_level(int offset) {
         data.clear();
     }
 
-    if (offset == -1) player.kill();
+    if (offset == -1) Player::get_instance().kill();
     else level_index = offset;
     rows = 1;
     columns = 0;
@@ -253,8 +252,8 @@ void Level::decode_file() {
 
     data = calculate_level_size(level_data_str);
 
-    Vector2 player_pos = player.get_player_pos();
-    player.spawn(player_pos.x, player_pos.y);
+    Vector2 player_pos = Player::get_instance().get_spawn_pos();
+    Player::get_instance().spawn(player_pos.x, player_pos.y);
     enemy.spawn();
 
     std::istringstream bounds_stream(bounds_data_str);
