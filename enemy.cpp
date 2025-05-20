@@ -4,6 +4,7 @@
 #include "level.h"
 #include "constants/game_elements.h"
 #include "constants/physics.h"
+#include "constants/graphics.h"
 
 extern Enemy enemy;
 extern Level level;
@@ -17,12 +18,12 @@ void Enemy::spawn() {
         for (size_t column = 0; column < level.get_columns(); ++column) {
             char cell = level.get_cell(row, column);
 
-            if (cell == ENEMY) {
+            if (cell == game_elements::ENEMY) {
                 // Instantiate and add an enemy to the level
                 enemy_data new_enemy = { {static_cast<float>(column), static_cast<float>(row)}, true };
                 enemies.push_back(new_enemy);
 
-                level.set_cell(row, column, AIR);
+                //level.set_cell(row, column, game_elements::AIR);
             }
         }
     }
@@ -32,10 +33,10 @@ void Enemy::update() {
     for (auto &enemy : enemies) {
         // Find the enemy's next x
         float next_x = enemy.pos.x;
-        next_x += (enemy.is_looking_right ? ENEMY_MOVEMENT_SPEED : -ENEMY_MOVEMENT_SPEED);
+        next_x += (enemy.is_looking_right ? physics::ENEMY_MOVEMENT_SPEED : -physics::ENEMY_MOVEMENT_SPEED);
 
         // If its next position collides with a wall, turn around
-        if (level.is_colliding({next_x, enemy.pos.y}, WALL)) {
+        if (level.is_colliding({next_x, enemy.pos.y}, game_elements::WALL)) {
             enemy.is_looking_right = !enemy.is_looking_right;
         }
         // Otherwise, keep moving
@@ -75,13 +76,13 @@ void Enemy::remove_colliding(Vector2 pos) {
 }
 
 void Enemy::draw() const {
-    float horizontal_shift = (screen_size.x - cell_size) / 2;
+    float horizontal_shift = (graphics::screen_size.x - graphics::cell_size) / 2;
 
     for (const auto& enemy : enemies) {
         Vector2 draw_pos = {
-            (enemy.pos.x - player.get_position().x) * cell_size + horizontal_shift,
-            enemy.pos.y * cell_size
+            (enemy.pos.x - player.get_position().x) * graphics::cell_size + horizontal_shift,
+            enemy.pos.y * graphics::cell_size
         };
-        draw_sprite(enemy_walk, draw_pos, cell_size);
+        draw_sprite(enemy_walk, draw_pos, graphics::cell_size);
     }
 }

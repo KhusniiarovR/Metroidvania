@@ -56,18 +56,18 @@ void update() {
         case MENU_STATE:
             if (IsKeyPressed(KEY_ENTER)) {
                 SetExitKey(0);
-                game_state = GAME_STATE;
+                game_state = PLAY_STATE;
                 level.load_level(1);
             }
             break;
 
-        case GAME_STATE:
+        case PLAY_STATE:
             if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
-                player.move_horizontally(PLAYER_MOVEMENT_SPEED);
+                player.move_horizontally(physics::PLAYER_MOVEMENT_SPEED);
             }
 
             if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-                player.move_horizontally(-PLAYER_MOVEMENT_SPEED);
+                player.move_horizontally(-physics::PLAYER_MOVEMENT_SPEED);
             }
 
             if (IsKeyDown(KEY_EQUAL)) {
@@ -75,10 +75,10 @@ void update() {
             }
 
             // Calculating collisions to decide whether the player is allowed to jump
-            player.set_on_ground(level.is_colliding({player.get_position().x, player.get_position().y + 0.1f}, WALL)
-                             ||  level.is_colliding({player.get_position().x, player.get_position().y + 0.1f}, PLATFORM));
+            player.set_on_ground(level.is_colliding({player.get_position().x, player.get_position().y + 0.1f}, game_elements::WALL)
+                             ||  level.is_colliding({player.get_position().x, player.get_position().y + 0.1f}, game_elements::PLATFORM));
             if ((IsKeyDown(KEY_UP) || IsKeyDown(KEY_W) || IsKeyDown(KEY_SPACE)) && player.get_is_on_ground()) {
-                player.set_y_velocity(-JUMP_STRENGTH);
+                player.set_y_velocity(-physics::JUMP_STRENGTH);
             }
 
             player.update();
@@ -91,7 +91,7 @@ void update() {
 
         case PAUSED_STATE:
             if (IsKeyPressed(KEY_ESCAPE)) {
-                game_state = GAME_STATE;
+                game_state = PLAY_STATE;
             }
             break;
 
@@ -101,10 +101,11 @@ void update() {
             if (IsKeyPressed(KEY_ENTER)) {
                 if (player.get_lives() > 0) {
                     level.load_level(level.get_index());
-                    game_state = GAME_STATE;
+                    game_state = PLAY_STATE;
                 }
                 else {
                     game_state = GAME_OVER_STATE;
+                    level.reset_data();
                     PlaySound(game_over_sound);
                 }
             }
@@ -114,7 +115,8 @@ void update() {
             if (IsKeyPressed(KEY_ENTER)) {
                 level.reset_index();
                 player.reset_stats();
-                game_state = GAME_STATE;
+                level.reset_data();
+                game_state = PLAY_STATE;
                 level.load_level(1);
             }
             if (IsKeyPressed(KEY_ESCAPE)) {
@@ -140,7 +142,7 @@ void draw() {
             draw_menu();
             break;
 
-        case GAME_STATE:
+        case PLAY_STATE:
             ClearBackground(BLACK);
             draw_parallax_background();
             draw_level();

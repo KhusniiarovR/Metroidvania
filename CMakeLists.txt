@@ -23,7 +23,6 @@ add_executable(
         assets.h
         utilities.h
         Game.h
-        constants/game_elements.h
-        constants/physics.h
+        constants/game_elements.h constants/physics.h constants/graphics.h
 )
 target_link_libraries(platformer PRIVATE raylib)

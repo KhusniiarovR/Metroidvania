@@ -59,30 +59,136 @@ void Level::reset_index() {
 void Level::load_level(int offset) {
     if (offset == 0) return;
 
-    if (offset == -1) player.kill();
-    level_index = offset;
-
-    if (level_index == -2) {
+    if (offset == -2) {
         game_state = VICTORY_STATE;
         create_victory_menu_background();
         reset_index();
         return;
     }
 
-    data.clear();
+
+    if (!data.empty()) {
+        encrypt();
+        data.clear();
+    }
+
+    if (offset == -1) player.kill();
+    else level_index = offset;
     rows = 1;
     columns = 0;
-    player.set_player_score(level_index, player.get_player_score(level_index));
+
 
     decode_file();
 
     // Calculate positioning and sizes
     derive_graphics_metrics_from_loaded_level();
+}
 
+void Level::encrypt(const std::string& filename) {
+    std::ostringstream result;
+
+    for (int i = 0; i < rows; i++) {
+        char current_char = data[i * columns];
+        int char_strike = 1;
+
+        for (int j = 1; j < columns; j++) {
+            char next_char = data[i * columns + j];
+            if (next_char == current_char) {
+                char_strike++;
+            }
+            else {
+                if (char_strike > 1) {
+                    result << char_strike;
+                }
+                result << current_char;
+                current_char = next_char;
+                char_strike = 1;
+            }
+        }
+
+        if (char_strike > 1) {
+            result << char_strike;
+        }
+        result << current_char;
+
+        if (i < rows - 1) {
+            result << '|';
+        }
+    }
+
+    result << "::";
+
+    result << index_to_bounds[0] << " "
+           << index_to_bounds[1] << " "
+           << index_to_bounds[2] << " "
+           << index_to_bounds[3];
+
+    std::string encoded_data = result.str();
+
+    std::ifstream input_file(filename);
+    if (!input_file.is_open()) {
+        std::cerr << "Can't Open file input_file in encrypt" << std::endl;
+        return;
+    }
+
+    std::vector<std::string> lines;
+    std::string line;
+    while (std::getline(input_file, line)) {
+        lines.push_back(line);
+    }
+    input_file.close();
+
+    std::string target = "; Level " + std::to_string(level_index);
+    bool level_found = false;
+
+    for (size_t i = 0; i < lines.size(); ++i) {
+        if (lines[i] == target) {
+            if (i + 1 < lines.size()) {
+                lines[i + 1] = encoded_data;
+            } else {
+                lines.push_back(encoded_data);
+            }
+            level_found = true;
+            break;
+        }
+    }
+
+    if (!level_found) {
+        std::cerr << "Didn't find level in levels.rll encrypt" << std::endl;
+        return;
+    }
+
+    std::ofstream output_file(filename);
+    if (!output_file.is_open()) {
+        std::cerr << "Can't open file to rewrite in encrypt" << std::endl;
+        return;
+    }
+
+    for (const auto& l : lines) {
+        output_file << l << "\n";
+    }
+    output_file.close();
+}
+
+void Level::reset_data(const std::string& source_path, const std::string& dest_path) {
+    data.clear();
+    std::ifstream src(source_path, std::ios::binary);
+    std::ofstream dst(dest_path, std::ios::binary);
+
+    if (!src) {
+        std::cerr << "Can't open source file" << source_path << "\n";
+        return;
+    }
+
+    if (!dst) {
+        std::cerr << "Can't open destination file" << dest_path << "\n";
+        return;
+    }
+
+    dst << src.rdbuf();
 }
 
 std::string Level::calculate_level_size(const std::string& nextLine) {
-
     std::string decoded;
     long long i = 0;
     int columns_number = 0;
@@ -119,11 +225,10 @@ std::string Level::calculate_level_size(const std::string& nextLine) {
 }
 
 void Level::decode_file() {
-
-    std::ifstream level_file("data/levels.rll");
+    std::ifstream level_file("data/saves/levels.rll");
 
     if (!level_file) {
-        std::cerr << "can't open levels.rll!" << std::endl;
+        std::cerr << "can't open levels.rll! in decode_file" << std::endl;
     }
 
     std::string line;
@@ -139,7 +244,7 @@ void Level::decode_file() {
 
     size_t pos = nextLine.find("::");
     if (pos == std::string::npos) {
-        std::cerr << "level line, missing '::'" << std::endl;
+        std::cerr << "level line, missing '::' in decode_file" << std::endl;
         return;
     }
 

@@ -2,7 +2,7 @@
 #define PLAYER_H
 
 #include "raylib.h"
-
+#include "constants/physics.h"
 
 class Player
 {
@@ -16,7 +16,7 @@ public:
     void update();
     void update_gravity();
     void out_of_bounds();
-    void increment_lifes() {lives++;}
+    void increment_lifes() { lives++; }
 
     [[nodiscard]] Vector2 get_position() const {return position;}
     [[nodiscard]] float get_y_velocity() const {return y_velocity;}
@@ -27,10 +27,8 @@ public:
     [[nodiscard]]bool get_is_looking_forward() const {return is_looking_forward;}
     [[nodiscard]]bool get_is_moving() const {return is_moving;}
     void set_moving(bool moving) { is_moving = moving; }
-    [[nodiscard]] int get_total_score() const;
     [[nodiscard]] Vector2 get_player_pos() const;
-    [[nodiscard]] int get_player_score(int index) const {return level_scores[index-1];};
-    void set_player_score(int index, int value) {level_scores[index-1] = value;};
+    [[nodiscard]] int get_score() const {return level_score;}
 
 private:
     void increment_score();
@@ -43,9 +41,9 @@ private:
 
     int init_player_pos_x, init_player_pos_y = 1;
 
-    int level_scores[9];
+    int level_score = 0;
 
-    int lives = 3;
+    int lives = physics::START_LIFES;
 
     char current_bound = 'D';
 };

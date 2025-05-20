@@ -2,6 +2,7 @@
 #include "enemy.h"
 #include "globals.h"
 #include "level.h"
+#include <iostream>
 #include "constants/game_elements.h"
 #include "constants/physics.h"
 
@@ -15,27 +16,27 @@ Player::Player() : position({0.0f,0.0f}), y_velocity(0),
 
 
 void Player::reset_stats() {
-    lives = 3;
-    for (int & level_score : level_scores) {
-        level_score = 0;
-    }
-}
-
-int Player::get_total_score() const {
-    int sum = 0;
-
-    for (const int level_score : level_scores) {
-        sum += level_score;
-    }
-
-    return sum;
+    lives = physics::START_LIFES;
+    level_score = 0;
+    current_bound = 'D';
 }
 
 Vector2 Player::get_player_pos() const {
     for (float i = 0; i < level.get_rows(); i++) {
         for (float j = 0; j < level.get_columns(); j++) {
-            char symbol = level.get_cell(i, j);
-            if (symbol == current_bound) return {j, i};
+            if (level.get_cell(i, j) == current_bound) return {j, i};
+        }
+    }
+
+    for (float i = 0; i < level.get_rows(); i++) { // if forgot to add spawn priority left
+        for (float j = 0; j < level.get_columns(); j++) {
+            if (level.get_cell(i, j) == 'R') return {j, i};
+        }
+    }
+
+    for (float i = 0; i < level.get_rows(); i++) { // if forgot to add spawn
+        for (float j = 0; j < level.get_columns(); j++) {
+            if (level.get_cell(i, j) == 'L' || level.get_cell(i, j) == 'U' || level.get_cell(i, j) == 'D') return {j, i};
         }
     }
     return {0,0};
@@ -44,7 +45,7 @@ Vector2 Player::get_player_pos() const {
 
 void Player::increment_score() {
     PlaySound(coin_sound);
-    level_scores[level.get_index()-1]++;
+    level_score++;
 }
 
 void Player::spawn(float pos_x, float pos_y) {
@@ -59,14 +60,13 @@ void Player::kill() {
     PlaySound(player_death_sound);
     game_state = DEATH_STATE;
     lives--;
-    level_scores[level.get_index()-1] = 0;
 }
 
 void Player::move_horizontally(float delta) {
     // See if the player can move further without touching a wall;
     // otherwise, prevent them from getting into a wall by rounding their position
     float next_x = position.x + delta;
-    if (!level.is_colliding({next_x, position.y}, WALL)) {
+    if (!level.is_colliding({next_x, position.y}, game_elements::WALL)) {
         position.x = next_x;
     }
     else {
@@ -80,23 +80,23 @@ void Player::move_horizontally(float delta) {
 }
 
 void Player::update_gravity() {
-    if (level.is_colliding({position.x, position.y - 0.1f}, WALL) && y_velocity < 0) {
-        y_velocity = CEILING_BOUNCE_OFF;
+    if (level.is_colliding({position.x, position.y - 0.1f}, game_elements::WALL) && y_velocity < 0) {
+        y_velocity = physics::CEILING_BOUNCE_OFF;
     }
 
-    if (level.is_colliding({position.x, position.y + 0.1f}, SPRING)) {
-        y_velocity = -CEILING_BOUNCE_OFF * 8;
+    if (level.is_colliding({position.x, position.y + 0.1f}, game_elements::SPRING)) {
+        y_velocity = -physics::CEILING_BOUNCE_OFF * 8;
         PlaySound(spring_sound);
     }
     // Add gravity to player's y-position
     position.y += y_velocity;
-    y_velocity += GRAVITY_FORCE;
+    y_velocity += physics::GRAVITY_FORCE;
 
     // If the player is on ground, zero player's y-velocity
     // If the player is *in* ground, pull them out by rounding their position
-    is_on_ground = level.is_colliding({position.x, position.y + 0.1f}, WALL)
+    is_on_ground = level.is_colliding({position.x, position.y + 0.1f}, game_elements::WALL)
     || (
-        level.is_colliding({position.x, position.y + 0.0001f}, PLATFORM) &&
+        level.is_colliding({position.x, position.y + 0.0001f}, game_elements::PLATFORM) &&
         y_velocity >= 0 &&
         !(IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN))
     );
@@ -112,15 +112,15 @@ void Player::update() {
 
     player.out_of_bounds();
     // Interacting with other level elements
-    if (level.is_colliding(position, COIN)) {
-        level.get_collider(position, COIN) = AIR; // Removes the coin
+    if (level.is_colliding(position, game_elements::COIN)) {
+        level.get_collider(position, game_elements::COIN) = game_elements::AIR; // Removes the coin
         player.increment_score();
     }
 
     timer++;
 
     // Kill the player if they touch a spike or fall below the level
-    if (level.is_colliding(position, SPIKE)) {
+    if (level.is_colliding(position, game_elements::SPIKE)) {
         player.kill();
     }
 
@@ -133,7 +133,7 @@ void Player::update() {
             PlaySound(kill_enemy_sound);
 
             player.increment_score();
-            y_velocity = -BOUNCE_OFF_ENEMY;
+            y_velocity = -physics::BOUNCE_OFF_ENEMY;
         }
         else {
             // ...if not, kill the player
