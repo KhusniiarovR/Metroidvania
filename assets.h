@@ -4,7 +4,7 @@
 #include <string>
 #include <cassert>
 
-sprite load_sprite(
+Sprite load_sprite(
     const std::string &file_name_prefix,
     const std::string &file_name_suffix,
     size_t frame_count,
@@ -13,7 +13,7 @@ sprite load_sprite(
 ) {
     assert(frame_count < 100);
 
-    sprite result = {
+    Sprite result = {
         frame_count, frames_to_skip, 0, 0, loop, 0, new Texture2D[frame_count]
     };
 
@@ -34,7 +34,7 @@ sprite load_sprite(
     return result;
 }
 
-void unload_sprite(sprite &sprite) {
+void unload_sprite(Sprite &sprite) {
     assert(sprite.frames != nullptr);
 
     for (size_t i = 0; i < sprite.frame_count; ++i) {
@@ -119,7 +119,7 @@ void draw_image(Texture2D image, Vector2 pos, float size) {
 }
 
 
-void draw_sprite(sprite &sprite, Vector2 pos, float width, float height) {
+void draw_sprite(Sprite &sprite, Vector2 pos, float width, float height) {
     draw_image(sprite.frames[sprite.frame_index], pos, width, height);
 
     if (sprite.prev_game_frame == game_frame) {
@@ -138,7 +138,7 @@ void draw_sprite(sprite &sprite, Vector2 pos, float width, float height) {
     sprite.prev_game_frame = game_frame;
 }
 
-void draw_sprite(sprite &sprite, Vector2 pos, float size) {
+void draw_sprite(Sprite &sprite, Vector2 pos, float size) {
     draw_sprite(sprite, pos, size, size);
 }
 void load_sounds() {

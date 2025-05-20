@@ -2,14 +2,9 @@
 #define GRAPHICS_H
 
 #include "globals.h"
-#include "Player.h"
-#include "enemy.h"
 #include "utilities.h"
 #include "constants/game_elements.h"
 #include "constants/graphics.h"
-
-extern Enemy enemy;
-extern Level level;
 
 void draw_text(Text &text) {
     // Measure the text, center it to the required position, and draw it
@@ -28,7 +23,7 @@ void derive_graphics_metrics_from_loaded_level() {
     graphics::screen_size.x  = static_cast<float>(GetRenderWidth());
     graphics::screen_size.y = static_cast<float>(GetRenderHeight());
 
-    graphics::cell_size = graphics::screen_size.y / static_cast<float>(level.get_rows());
+    graphics::cell_size = graphics::screen_size.y / static_cast<float>(Level::get_instance().get_rows());
     graphics::screen_scale = std::min(graphics::screen_size.x, graphics::screen_size.y) / graphics::SCREEN_SCALE_DIVISOR;
 
     // Parallax background setup
@@ -88,9 +83,9 @@ void draw_game_overlay() {
     }
 
     // Timer
-    Vector2 timer_dimensions = MeasureTextEx(menu_font, std::to_string(timer / 60).c_str(), ICON_SIZE, 2.0f);
+    Vector2 timer_dimensions = MeasureTextEx(menu_font, std::to_string(Player::get_instance().get_timer() / 60).c_str(), ICON_SIZE, 2.0f);
     Vector2 timer_position = {(GetRenderWidth() - timer_dimensions.x) * 0.5f, slight_vertical_offset};
-    DrawTextEx(menu_font, std::to_string(timer / 60).c_str(), timer_position, ICON_SIZE, 2.0f, WHITE);
+    DrawTextEx(menu_font, std::to_string(Player::get_instance().get_timer() / 60).c_str(), timer_position, ICON_SIZE, 2.0f, WHITE);
 
     // Score
     Vector2 score_dimensions = MeasureTextEx(menu_font, std::to_string(Player::get_instance().get_score()).c_str(), ICON_SIZE, 2.0f);
@@ -103,8 +98,8 @@ void draw_level() {
     // Move the x-axis' center to the middle of the screen
     graphics::horizontal_shift = (graphics::screen_size.x - graphics::cell_size) / 2;
 
-    for (size_t row = 0; row < level.get_rows(); ++row) {
-        for (size_t column = 0; column < level.get_columns(); ++column) {
+    for (size_t row = 0; row < Level::get_instance().get_rows(); ++row) {
+        for (size_t column = 0; column < Level::get_instance().get_columns(); ++column) {
 
             Vector2 pos = {
                     // Move the level to the left as the player advances to the right,
@@ -114,7 +109,7 @@ void draw_level() {
             };
 
             // Draw the level itself
-            char cell = level.get_cell(row, column);
+            char cell = Level::get_instance().get_cell(row, column);
             switch (cell) {
                 case game_elements::WALL:
                     draw_image(wall_image, pos, graphics::cell_size);
@@ -144,7 +139,7 @@ void draw_level() {
     }
 
     draw_player();
-    enemy.draw();
+    Enemy::get_instance().draw();
 }
 
 void draw_player() {

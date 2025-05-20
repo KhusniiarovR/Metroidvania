@@ -9,7 +9,7 @@
 #include <cmath>
 
 /* Timer-mechanic related */
-inline int timer = 0;
+
 
 /* Fonts */
 
@@ -28,7 +28,7 @@ struct Text {
 
 /* Images and Sprites */
 
-struct sprite {
+struct Sprite {
     size_t frame_count    = 0;
     size_t frames_to_skip = 3;
     size_t frames_skipped = 0;
@@ -46,7 +46,7 @@ inline Texture2D exit_image;
 inline Texture2D platform_image;
 inline Texture2D spring_image;
 inline Texture2D menu_image;
-inline sprite coin_sprite;
+inline Sprite coin_sprite;
 
 // UI Elements
 inline Texture2D heart_image;
@@ -57,11 +57,11 @@ inline Texture2D player_stand_backwards_image;
 inline Texture2D player_jump_forward_image;
 inline Texture2D player_jump_backwards_image;
 inline Texture2D player_dead_image;
-inline sprite player_walk_forward_sprite;
-inline sprite player_walk_backwards_sprite;
+inline Sprite player_walk_forward_sprite;
+inline Sprite player_walk_backwards_sprite;
 
 // Enemy
-inline sprite enemy_walk;
+inline Sprite enemy_walk;
 
 // Background Elements
 inline Texture2D background;
@@ -140,16 +140,16 @@ void unload_images();
 void draw_image(Texture2D image, Vector2 pos, float width, float height);
 void draw_image(Texture2D image, Vector2 pos, float size);
 
-sprite load_sprite(
+Sprite load_sprite(
         const std::string &file_name_prefix,
         const std::string &file_name_suffix,
         size_t frame_count = 1,
         bool loop = true,
         size_t frames_to_skip = 3
 );
-void unload_sprite(sprite &sprite);
-void draw_sprite(sprite &sprite, Vector2 pos, float width, float height);
-void draw_sprite(sprite &sprite, Vector2 pos, float size);
+void unload_sprite(Sprite &sprite);
+void draw_sprite(Sprite &sprite, Vector2 pos, float width, float height);
+void draw_sprite(Sprite &sprite, Vector2 pos, float size);
 
 void load_sounds();
 void unload_sounds();

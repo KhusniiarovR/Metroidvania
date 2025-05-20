@@ -35,6 +35,7 @@ public:
     [[nodiscard]]bool get_is_moving() const {return is_moving;}
     [[nodiscard]] Vector2 get_spawn_pos() const;
     [[nodiscard]] int get_score() const {return level_score;}
+    [[nodiscard]] int get_timer() const {return timer;}
 
     void set_y_velocity(float y_velocity) {this->y_velocity = y_velocity;}
     void set_on_ground(bool on_ground) { is_on_ground = on_ground; }
@@ -43,6 +44,7 @@ public:
 private:
     Player();
     ~Player() = default;
+
     void increment_score();
 
     float y_velocity;
@@ -50,10 +52,11 @@ private:
     bool is_on_ground;
     bool is_looking_forward;
     bool is_moving;
-    int init_player_pos_x, init_player_pos_y;
+    int init_pos_x, init_pos_y;
     int level_score;
     int lives = physics::START_LIFES;
     char current_bound;
+    int timer;
 };
 
 #endif //PLAYER_H
