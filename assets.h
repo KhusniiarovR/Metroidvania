@@ -59,7 +59,6 @@ void load_images() {
     spike_image                  = LoadTexture("data/images/spikes.png");
     platform_image               = LoadTexture("data/images/platform.png");
     spring_image               = LoadTexture("data/images/spring.png");
-    menu_image               = LoadTexture("data/images/menu.png");
 
     coin_sprite                  = load_sprite("data/images/coin/coin", ".png", 3, true, 18);
     heart_image                  = LoadTexture("data/images/heart.png");
@@ -85,7 +84,6 @@ void unload_images() {
     UnloadTexture(spike_image);
     UnloadTexture(platform_image);
     UnloadTexture(spring_image);
-    UnloadTexture(menu_image);
 
     unload_sprite(coin_sprite);
     UnloadTexture(heart_image);

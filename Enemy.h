@@ -1,7 +1,8 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
-#include "globals.h"
+#include <vector>
+#include "raylib.h"
 
 class Enemy
 {

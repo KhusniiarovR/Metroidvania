@@ -208,14 +208,24 @@ inline Text game_over_subtitle = {
 
 inline Text victory_title = {
     "You Won!",
-    {0.50f, 0.50f},
+    {0.50f, 0.60f},
     100.0f,
     RED
 };
 
 inline Text victory_subtitle = {
     "Press Enter to go back to menu",
-    {0.50f, 0.65f}
+    {0.50f, 0.75f}
+};
+
+inline Text coins_collected = {
+    std::to_string(Player::get_instance().get_score()) + "/61 coins were collected",
+    {0.50, 0.30}, 32, GREEN,
+};
+
+inline Text time_spent = {
+    "it takes " + std::to_string(Player::get_instance().get_timer()) + " seconds to finish",
+    {0.50, 0.40}, 32, YELLOW,
 };
 
 // Menus
@@ -243,6 +253,8 @@ void draw_game_over_menu() {
 }
 
 void create_victory_menu_background() {
+    coins_collected.str = std::to_string(Player::get_instance().get_score()) + "/61 coins were collected";
+    time_spent.str = "it takes " +std::to_string(Player::get_instance().get_timer() / 60) + " seconds to finish";
     for (auto &ball : victory_balls) {
         ball.x  = rand_up_to(graphics::screen_size.x);
         ball.y  = rand_up_to(graphics::screen_size.y);
@@ -298,6 +310,8 @@ void draw_victory_menu() {
 
     draw_text(victory_title);
     draw_text(victory_subtitle);
+    draw_text(coins_collected);
+    draw_text(time_spent);
 }
 
 #endif //GRAPHICS_H

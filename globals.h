@@ -2,13 +2,8 @@
 #define GLOBALS_H
 
 #include "raylib.h"
-
-#include <vector>
 #include <string>
 #include <cstddef>
-#include <cmath>
-
-/* Timer-mechanic related */
 
 
 /* Fonts */
@@ -44,7 +39,6 @@ inline Texture2D wall_dark_image;
 inline Texture2D spike_image;
 inline Texture2D platform_image;
 inline Texture2D spring_image;
-inline Texture2D menu_image;
 inline Sprite coin_sprite;
 
 // UI Elements

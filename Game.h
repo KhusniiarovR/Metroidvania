@@ -48,6 +48,9 @@ private:
 
         switch (game_state) {
             case MENU_STATE:
+                if (IsKeyPressed(KEY_A)) {
+                    game_state = VICTORY_STATE;
+                }
                 if (IsKeyPressed(KEY_ENTER)) {
                     SetExitKey(0);
                     game_state = PLAY_STATE;
