@@ -17,7 +17,7 @@ public:
         SetConfigFlags(FLAG_VSYNC_HINT);
         InitWindow(GetScreenWidth(), GetScreenHeight(), "Platformer");
         SetTargetFPS(60);
-        //ToggleFullscreen();
+        ToggleFullscreen();
         HideCursor();
         load_fonts();
         load_images();
@@ -48,12 +48,10 @@ private:
 
         switch (game_state) {
             case MENU_STATE:
-                if (IsKeyPressed(KEY_A)) {
-                    game_state = VICTORY_STATE;
-                }
                 if (IsKeyPressed(KEY_ENTER)) {
                     SetExitKey(0);
                     game_state = PLAY_STATE;
+                    Level::get_instance().reset_data();
                     Level::get_instance().load_level(1);
                 }
 
@@ -69,10 +67,6 @@ private:
 
                 if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
                     Player::get_instance().move_horizontally(-physics::PLAYER_MOVEMENT_SPEED);
-                }
-
-                if (IsKeyDown(KEY_EQUAL)) {
-                    Player::get_instance().increment_lifes();
                 }
 
                 // Calculating collisions to decide whether the player is allowed to jump

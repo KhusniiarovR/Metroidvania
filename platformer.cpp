@@ -2,7 +2,7 @@
 
 int main() {
     Game game;
-    game.Init();
+    Game::Init();
     game.Run();
     return 0;
 }

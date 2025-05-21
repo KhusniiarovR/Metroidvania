@@ -25,7 +25,6 @@ public:
     void update();
     void update_gravity();
     void out_of_bounds();
-    void increment_lifes() { lives++; }
 
     [[nodiscard]] Vector2 get_position() const {return position;}
     [[nodiscard]] float get_y_velocity() const {return y_velocity;}
