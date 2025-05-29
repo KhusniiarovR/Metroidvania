@@ -157,8 +157,9 @@ void Level::decode_file() {
 
     data = calculate_level_size(level_data_str);
 
-    Vector2 player_pos = Player::get_instance().get_spawn_pos();
-    Player::get_instance().spawn(player_pos.x, player_pos.y);
+    auto& player = Player::get_instance();
+    Vector2 player_pos = player.get_spawn_pos();
+    player.spawn(player_pos.x, player_pos.y);
     Enemy::get_instance().spawn();
 
     std::istringstream bounds_stream(bounds_data_str);

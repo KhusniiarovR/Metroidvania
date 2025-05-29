@@ -11,9 +11,11 @@ void Enemy::spawn() {
     // Create enemies, incrementing their amount every time a new one is created
     enemies.clear();
 
-    for (size_t row = 0; row < Level::get_instance().get_rows(); ++row) {
-        for (size_t column = 0; column < Level::get_instance().get_columns(); ++column) {
-            char cell = Level::get_instance().get_cell(row, column);
+    auto& level = Level::get_instance();
+
+    for (size_t row = 0; row < level.get_rows(); ++row) {
+        for (size_t column = 0; column < level.get_columns(); ++column) {
+            char cell = level.get_cell(row, column);
 
             if (cell == game_elements::ENEMY) {
                 // Instantiate and add an enemy to the level

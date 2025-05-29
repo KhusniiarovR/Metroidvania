@@ -75,22 +75,23 @@ void draw_game_overlay() {
 
     float slight_vertical_offset = 8.0f;
     slight_vertical_offset *= graphics::screen_scale;
+    auto& player = Player::get_instance();
 
     // Hearts
-    for (int i = 0; i < Player::get_instance().get_lives(); i++) {
+    for (int i = 0; i < player.get_lives(); i++) {
         const float SPACE_BETWEEN_HEARTS = 4.0f * graphics::screen_scale;
         draw_image(heart_image, {ICON_SIZE * i + SPACE_BETWEEN_HEARTS, slight_vertical_offset}, ICON_SIZE);
     }
 
     // Timer
-    Vector2 timer_dimensions = MeasureTextEx(menu_font, std::to_string(Player::get_instance().get_timer() / 60).c_str(), ICON_SIZE, 2.0f);
+    Vector2 timer_dimensions = MeasureTextEx(menu_font, std::to_string(player.get_timer() / 60).c_str(), ICON_SIZE, 2.0f);
     Vector2 timer_position = {(GetRenderWidth() - timer_dimensions.x) * 0.5f, slight_vertical_offset};
-    DrawTextEx(menu_font, std::to_string(Player::get_instance().get_timer() / 60).c_str(), timer_position, ICON_SIZE, 2.0f, WHITE);
+    DrawTextEx(menu_font, std::to_string(player.get_timer() / 60).c_str(), timer_position, ICON_SIZE, 2.0f, WHITE);
 
     // Score
-    Vector2 score_dimensions = MeasureTextEx(menu_font, std::to_string(Player::get_instance().get_score()).c_str(), ICON_SIZE, 2.0f);
+    Vector2 score_dimensions = MeasureTextEx(menu_font, std::to_string(player.get_score()).c_str(), ICON_SIZE, 2.0f);
     Vector2 score_position = {GetRenderWidth() - score_dimensions.x - ICON_SIZE, slight_vertical_offset};
-    DrawTextEx(menu_font, std::to_string(Player::get_instance().get_score()).c_str(), score_position, ICON_SIZE, 2.0f, WHITE);
+    DrawTextEx(menu_font, std::to_string(player.get_score()).c_str(), score_position, ICON_SIZE, 2.0f, WHITE);
     draw_sprite(coin_sprite, {GetRenderWidth() - ICON_SIZE, slight_vertical_offset}, ICON_SIZE);
 }
 
@@ -141,24 +142,25 @@ void draw_level() {
 
 void draw_player() {
     graphics::horizontal_shift = (graphics::screen_size.x - graphics::cell_size) / 2;
+    auto& player = Player::get_instance();
 
     // Shift the camera to the center of the screen to allow to see what is in front of the player
     Vector2 pos = {
             graphics::horizontal_shift,
-            Player::get_instance().get_position().y * graphics::cell_size
+            player.get_position().y * graphics::cell_size
     };
 
     // Pick an appropriate sprite for the player
     if (game_state == PLAY_STATE) {
-        if (!Player::get_instance().get_is_on_ground()) {
-            draw_image((Player::get_instance().get_is_looking_forward() ? player_jump_forward_image : player_jump_backwards_image), pos, graphics::cell_size);
+        if (!player.get_is_on_ground()) {
+            draw_image((player.get_is_looking_forward() ? player_jump_forward_image : player_jump_backwards_image), pos, graphics::cell_size);
         }
-        else if (Player::get_instance().get_is_moving()) {
-            draw_sprite((Player::get_instance().get_is_looking_forward() ? player_walk_forward_sprite : player_walk_backwards_sprite), pos, graphics::cell_size);
-            Player::get_instance().set_moving(false);
+        else if (player.get_is_moving()) {
+            draw_sprite((player.get_is_looking_forward() ? player_walk_forward_sprite : player_walk_backwards_sprite), pos, graphics::cell_size);
+            player.set_moving(false);
         }
         else {
-            draw_image((Player::get_instance().get_is_looking_forward() ? player_stand_forward_image : player_stand_backwards_image), pos, graphics::cell_size);
+            draw_image((player.get_is_looking_forward() ? player_stand_forward_image : player_stand_backwards_image), pos, graphics::cell_size);
         }
     }
     else {
@@ -219,12 +221,12 @@ inline Text victory_subtitle = {
 };
 
 inline Text coins_collected = {
-    std::to_string(Player::get_instance().get_score()) + "/61 coins were collected",
+    "",
     {0.50, 0.30}, 32, GREEN,
 };
 
 inline Text time_spent = {
-    "it takes " + std::to_string(Player::get_instance().get_timer()) + " seconds to finish",
+    "",
     {0.50, 0.40}, 32, YELLOW,
 };
 
@@ -253,8 +255,10 @@ void draw_game_over_menu() {
 }
 
 void create_victory_menu_background() {
-    coins_collected.str = std::to_string(Player::get_instance().get_score()) + "/61 coins were collected";
-    time_spent.str = "it takes " +std::to_string(Player::get_instance().get_timer() / 60) + " seconds to finish";
+    auto& player = Player::get_instance();
+
+    coins_collected.str = std::to_string(player.get_score()) + "/61 coins were collected";
+    time_spent.str = "it takes " +std::to_string(player.get_timer() / 60) + " seconds to finish";
     for (auto &ball : victory_balls) {
         ball.x  = rand_up_to(graphics::screen_size.x);
         ball.y  = rand_up_to(graphics::screen_size.y);

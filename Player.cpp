@@ -2,13 +2,12 @@
 #include "globals.h"
 #include "Enemy.h"
 #include "Level.h"
-#include <iostream>
 #include "constants/game_elements.h"
 #include "constants/physics.h"
 
-Player::Player() : position({0.0f,0.0f}), y_velocity(0),
-                   is_on_ground(true), is_moving(false),
-                   is_looking_forward(true), init_pos_x(1), init_pos_y(1),
+Player::Player() : y_velocity(0), position({0.0f,0.0f}),
+                   is_on_ground(true), is_looking_forward(true),
+                   is_moving(false), init_pos_x(1), init_pos_y(1),
                    level_score(0), current_bound('D'), timer(0) {}
 
 void Player::reset_stats() {
@@ -54,25 +53,28 @@ void Player::update() {
     update_gravity();
 
     out_of_bounds();
+
+    auto& level = Level::get_instance();
     // Interacting with other level elements
-    if (Level::get_instance().is_colliding(position, game_elements::COIN)) {
-        Level::get_instance().get_collider(position, game_elements::COIN) = game_elements::AIR; // Removes the coin
+    if (level.is_colliding(position, game_elements::COIN)) {
+        level.get_collider(position, game_elements::COIN) = game_elements::AIR; // Removes the coin
         increment_score();
     }
 
     timer++;
 
     // Kill the player if they touch a spike or fall below the level
-    if (Level::get_instance().is_colliding(position, game_elements::SPIKE)) {
+    if (level.is_colliding(position, game_elements::SPIKE)) {
         kill();
     }
 
     // Upon colliding with an enemy...
-    if (Enemy::get_instance().is_colliding(position)) {
+    auto& enemy = Enemy::get_instance();
+    if (enemy.is_colliding(position)) {
         // ...check if their velocity is downwards...
         if (y_velocity > 0) {
             // ...if yes, award the player and kill the enemy
-            Enemy::get_instance().remove_colliding(position);
+            enemy.remove_colliding(position);
             PlaySound(kill_enemy_sound);
             y_velocity = -physics::BOUNCE_OFF_ENEMY;
         }
@@ -84,11 +86,12 @@ void Player::update() {
 }
 
 void Player::update_gravity() {
-    if (Level::get_instance().is_colliding({position.x, position.y - 0.1f}, game_elements::WALL) && y_velocity < 0) {
+    auto& level = Level::get_instance();
+    if (level.is_colliding({position.x, position.y - 0.1f}, game_elements::WALL) && y_velocity < 0) {
         y_velocity = physics::CEILING_BOUNCE_OFF;
     }
 
-    if (Level::get_instance().is_colliding({position.x, position.y + 0.1f}, game_elements::SPRING)) {
+    if (level.is_colliding({position.x, position.y + 0.1f}, game_elements::SPRING)) {
         y_velocity = -physics::CEILING_BOUNCE_OFF * 8;
         PlaySound(spring_sound);
     }
@@ -98,9 +101,9 @@ void Player::update_gravity() {
 
     // If the player is on ground, zero player's y-velocity
     // If the player is *in* ground, pull them out by rounding their position
-    is_on_ground = Level::get_instance().is_colliding({position.x, position.y + 0.1f}, game_elements::WALL)
+    is_on_ground = level.is_colliding({position.x, position.y + 0.1f}, game_elements::WALL)
     || (
-        Level::get_instance().is_colliding({position.x, position.y + 0.0001f}, game_elements::PLATFORM) &&
+        level.is_colliding({position.x, position.y + 0.0001f}, game_elements::PLATFORM) &&
         y_velocity >= 0 &&
         !(IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN))
     );
@@ -112,40 +115,42 @@ void Player::update_gravity() {
 }
 
 void Player::out_of_bounds() {
+    auto& level = Level::get_instance();
     if (position.x < 0) {
         current_bound = 'L';
-        Level::get_instance().load_level(Level::get_instance().get_bounds(1));
+        level.load_level(level.get_bounds(1));
     }
-    else if (position.x > static_cast<float>(Level::get_instance().get_columns())) {
+    else if (position.x > static_cast<float>(level.get_columns())) {
         current_bound = 'R';
-        Level::get_instance().load_level(Level::get_instance().get_bounds(2));
+        level.load_level(level.get_bounds(2));
     }
     else if (position.y < 0) {
         current_bound = 'U';
-        Level::get_instance().load_level(Level::get_instance().get_bounds(3));
+        level.load_level(level.get_bounds(3));
     }
-    else if (position.y > static_cast<float>(Level::get_instance().get_rows())) {
+    else if (position.y > static_cast<float>(level.get_rows())) {
         current_bound = 'D';
-        Level::get_instance().load_level(Level::get_instance().get_bounds(4));
+        level.load_level(level.get_bounds(4));
     }
 }
 
 Vector2 Player::get_spawn_pos() const {
-    for (int i = 0; i < Level::get_instance().get_rows(); i++) {
-        for (int j = 0; j < Level::get_instance().get_columns(); j++) {
-            if (Level::get_instance().get_cell(i, j) == current_bound) return {static_cast<float>(j), static_cast<float>(i)};
+    auto& level = Level::get_instance();
+    for (int i = 0; i < level.get_rows(); i++) {
+        for (int j = 0; j < level.get_columns(); j++) {
+            if (level.get_cell(i, j) == current_bound) return {static_cast<float>(j), static_cast<float>(i)};
         }
     }
 
-    for (int i = 0; i < Level::get_instance().get_rows(); i++) { // if forgot to add spawn priority left
-        for (int j = 0; j < Level::get_instance().get_columns(); j++) {
-            if (Level::get_instance().get_cell(i, j) == 'R') return {static_cast<float>(j), static_cast<float>(i)};
+    for (int i = 0; i < level.get_rows(); i++) { // if forgot to add spawn priority left
+        for (int j = 0; j < level.get_columns(); j++) {
+            if (level.get_cell(i, j) == 'R') return {static_cast<float>(j), static_cast<float>(i)};
         }
     }
 
-    for (int i = 0; i < Level::get_instance().get_rows(); i++) { // if forgot to add spawn
-        for (int j = 0; j < Level::get_instance().get_columns(); j++) {
-            if (Level::get_instance().get_cell(i, j) == 'L' || Level::get_instance().get_cell(i, j) == 'U' || Level::get_instance().get_cell(i, j) == 'D') return {static_cast<float>(j), static_cast<float>(i)};
+    for (int i = 0; i < level.get_rows(); i++) { // if forgot to add spawn
+        for (int j = 0; j < level.get_columns(); j++) {
+            if (level.get_cell(i, j) == 'L' || level.get_cell(i, j) == 'U' || level.get_cell(i, j) == 'D') return {static_cast<float>(j), static_cast<float>(i)};
         }
     }
     return {0,0};
